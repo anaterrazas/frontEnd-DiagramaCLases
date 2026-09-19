@@ -268,8 +268,8 @@ function makeViewLink(l: LinkEdge): UMLDiagramLink {
   return {
     id: viewLinkId(l.id),
     semanticElementId: l.id,
-    sourceElementId: l.sourceId,
-    targetElementId: l.targetId,
+    sourceElementId: viewElementId(l.sourceId),
+    targetElementId: viewElementId(l.targetId),
     anchorSrc: l.anchorSrc ?? null,
     anchorTgt: l.anchorTgt ?? null,
   }
