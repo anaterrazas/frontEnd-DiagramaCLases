@@ -8,6 +8,7 @@ import { canvasToUml, makeTypeReference, parseMultiplicityText, umlToCanvas } fr
 import type { AdapterWarning, CanvasToUmlResult } from '../adapters'
 import { canvasSnapshotToUmlProjectDocument } from '../adapters/canvasToUmlProjectDocument'
 import { umlProjectDocumentToCanvas } from '../adapters/umlProjectDocumentToCanvas'
+import { importEnterpriseArchitectXmi } from '@/core/uml/xmi'
 import {
   downloadUmlProjectDocument,
   readUmlProjectDocumentFile,
@@ -945,6 +946,30 @@ export const useEditorStore = defineStore('editor', {
         this.umlView = activeView
         this.umlWarnings = canvasResult.warnings
 
+        this.setSelected(null, null)
+        this.resetTool()
+
+        try { this.broadcastReplace?.() } catch (e) { console.warn('broadcastReplace error', e) }
+      } finally {
+        this.loadingImport = false
+      }
+    },
+
+    async importEnterpriseArchitectFile(file: File): Promise<void> {
+      try {
+        if (!this.engine) throw new Error('Engine no inicializado')
+        this.loadingImport = true
+
+        const result = importEnterpriseArchitectXmi(await file.text())
+        if (!result.document) throw new Error(result.errors.join(' ') || 'No se pudo importar el XMI de Enterprise Architect')
+
+        const canvasResult = umlProjectDocumentToCanvas(result.document)
+        this.engine.fromJSON(canvasResult.model)
+        const activeView = result.document.diagrams[0] ?? null
+
+        this.umlModel = result.document.model
+        this.umlView = activeView
+        this.umlWarnings = [...result.warnings, ...canvasResult.warnings]
         this.setSelected(null, null)
         this.resetTool()
 

@@ -77,6 +77,17 @@
       @change="onUmlProjectPicked"
     />
 
+    <button :disabled="loading" @click="onOpenEnterpriseArchitectClick">
+      Importar XMI de Enterprise Architect
+    </button>
+    <input
+      ref="enterpriseArchitectInput"
+      type="file"
+      accept=".xmi,.xml,application/xml,text/xml"
+      class="hidden"
+      @change="onEnterpriseArchitectPicked"
+    />
+
     <p class="hint">tool: {{ tool }} — relation: {{ relationKind }}</p>
   </div>
 </template>
@@ -87,7 +98,7 @@ import { storeToRefs } from "pinia";
 import { useEditorStore, type Tool } from "@/modules/editor/store/editor.store";
 import type { RelationKind } from "@/modules/editor/services/canvas.engine";
 import { canvasSnapshotToUmlProjectDocument } from "@/modules/editor/adapters/canvasToUmlProjectDocument";
-import { exportDrawSchemaToXmi } from "@/core/uml/xmi/bridge";
+import { exportEnterpriseArchitectXmi } from "@/core/uml/xmi";
 import { notify } from "@/utils/snackbar";
 
 const store = useEditorStore();
@@ -127,6 +138,7 @@ function onImportClick() {
 
 // Persistencia local: guardar/abrir proyecto (.umlproject)
 const umlProjectInput = ref<HTMLInputElement | null>(null);
+const enterpriseArchitectInput = ref<HTMLInputElement | null>(null);
 
 async function onSaveProject() {
   await store.exportUmlProjectFile();
@@ -151,7 +163,7 @@ async function onExportXmi() {
       viewId: umlView.value?.id,
       activeDiagramId: umlView.value?.id,
     });
-    const result = exportDrawSchemaToXmi(project.document, { pretty: true });
+    const result = exportEnterpriseArchitectXmi(project.document, { pretty: true });
 
     if (result.errors.length > 0) {
       notify(`No se exportó XMI: ${result.errors.join(" ")}`, "error");
@@ -211,6 +223,25 @@ async function onUmlProjectPicked(e: Event) {
     notify("Proyecto abierto correctamente");
   } finally {
     if (input) input.value = "";
+  }
+}
+
+function onOpenEnterpriseArchitectClick() {
+  enterpriseArchitectInput.value?.click();
+}
+
+async function onEnterpriseArchitectPicked(e: Event) {
+  const input = e.target as HTMLInputElement;
+  const file = input.files?.[0];
+  if (!file) return;
+  try {
+    await store.importEnterpriseArchitectFile(file);
+    notify("XMI de Enterprise Architect importado correctamente");
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Error desconocido";
+    notify(`No se pudo importar el XMI de Enterprise Architect: ${message}`, "error");
+  } finally {
+    input.value = "";
   }
 }
 

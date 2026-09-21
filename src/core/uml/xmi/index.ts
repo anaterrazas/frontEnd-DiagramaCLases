@@ -7,4 +7,6 @@ export type {
 export type { XmiImportResult } from './importXmiToUml'
 
 export { exportUmlModelToXmi } from './exportUmlToXmi'
+export { exportEnterpriseArchitectXmi } from './exportEnterpriseArchitectXmi'
 export { importXmiToUmlModel } from './importXmiToUml'
+export { importEnterpriseArchitectXmi } from './importEnterpriseArchitectXmi'

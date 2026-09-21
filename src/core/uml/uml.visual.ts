@@ -7,6 +7,8 @@
 // `semanticElementId` apunta por id a un elemento semántico
 // (classifier, association, generalización, …). El Canvas NO será el modelo.
 
+import type { UmlIdentity } from './identity'
+
 /** Lado del borde de la caja al que se ancla un extremo de enlace. */
 export type UMLAnchorSide = 'L' | 'R' | 'T' | 'B'
 
@@ -22,6 +24,7 @@ export interface UMLAnchor {
  */
 export interface UMLDiagramElement {
   id: string
+  identity?: UmlIdentity
 
   /** Id del elemento semántico representado (UMLClassifier, UMLAssociation, …). */
   semanticElementId: string

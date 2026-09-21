@@ -81,3 +81,18 @@ export type {
   PersistenceMetadata,
   CodegenMetadata,
 } from './uml.extensions'
+
+// ---- Identidad estable (Fase 1.5) ----
+export type {
+  UMLIdentity,
+  UmlExternalId,
+  UmlExternalIdSource,
+  UmlIdentity,
+  UmlIdentityIdKind,
+} from './identity'
+export {
+  createUmlIdentity,
+  hydrateUmlIdRegistry,
+  UmlIdRegistry,
+  UmlIdentityCollisionError,
+} from './identity'

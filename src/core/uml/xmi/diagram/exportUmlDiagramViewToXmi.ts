@@ -1,5 +1,5 @@
 // src/core/uml/xmi/diagram/exportUmlDiagramViewToXmi.ts
-// Exportacion visual experimental con extension Enterprise Architect.
+// Exportacion visual basica compatible con UML Diagram de Enterprise Architect.
 
 import type { UMLDiagramElement, UMLDiagramLink, UMLDiagramView } from '../../uml.visual'
 import { xmlAttribute } from '../xmi.escape'
@@ -8,11 +8,10 @@ import type {
   XmiDiagramExportResult,
 } from './xmi.diagram.types'
 
-const EA_EXTENDER = 'Enterprise Architect'
-
 export function exportUmlDiagramViewToXmi(
   view: UMLDiagramView,
   options: XmiDiagramExportOptions = {},
+  ownerId?: string,
 ): XmiDiagramExportResult {
   const warnings: string[] = []
   const errors: string[] = []
@@ -21,29 +20,19 @@ export function exportUmlDiagramViewToXmi(
   validateView(view, warnings, errors)
   const diagramGuid = makeDiagramGuid(view.id)
 
-  writer.open(`xmi:Extension${xmlAttribute('extender', EA_EXTENDER)}`)
-  writer.open('diagrams')
-  writer.open(`diagram${xmlAttribute('xmi:id', diagramGuid)}${xmlAttribute('name', view.name)}${xmlAttribute('diagram_guid', diagramGuid)}`)
-  writer.open('elements')
+  writer.open(`UML:Diagram${xmlAttribute('xmlns:UML', 'omg.org/UML1.3')}${xmlAttribute('name', view.name)}${xmlAttribute('xmi.id', diagramGuid)}${xmlAttribute('diagramType', 'ClassDiagram')}${xmlAttribute('owner', ownerId)}${xmlAttribute('toolName', 'Enterprise Architect 2.5')}`)
+  writer.open('UML:Diagram.element')
   view.elements.forEach((element, index) => {
-    writeElement(writer, element, index + 1, diagramGuid)
+    writeElement(writer, element, index + 1)
   })
-  writer.close('elements')
 
-  if ((view.links ?? []).length > 0) {
-    warnings.push('Los conectores visuales fueron exportados en formato EA experimental; el dialecto completo todavía no está implementado.')
-  }
-
-  writer.open('connectors')
   for (const link of view.links ?? []) {
-    writeConnector(writer, link, diagramGuid)
+    writeRelationElement(writer, link)
   }
-  writer.close('connectors')
-  writer.close('diagram')
-  writer.close('diagrams')
-  writer.close('xmi:Extension')
 
-  warnings.push('Los elementos visuales fueron exportados usando la extension Enterprise Architect.')
+  writer.close('UML:Diagram.element')
+  writer.close('UML:Diagram')
+
   warnings.push(...styleWarnings(view))
 
   return {
@@ -56,13 +45,14 @@ export function exportUmlDiagramViewToXmi(
 export function exportUmlDiagramViewsToXmi(
   views: UMLDiagramView[],
   options: XmiDiagramExportOptions = {},
+  ownerId?: string,
 ): XmiDiagramExportResult {
   const warnings: string[] = []
   const errors: string[] = []
   const fragments: string[] = []
 
   for (const view of views) {
-    const result = exportUmlDiagramViewToXmi(view, options)
+    const result = exportUmlDiagramViewToXmi(view, options, ownerId)
     fragments.push(result.xmi)
     warnings.push(...result.warnings)
     errors.push(...result.errors)
@@ -109,21 +99,20 @@ function writeElement(
   writer: XmlWriter,
   element: UMLDiagramElement,
   sequence: number,
-  diagramGuid: string,
 ): void {
   writer.selfClosing(
-    `element${xmlAttribute('xmi:id', element.id)}${xmlAttribute('xmi:idref', nonEmpty(element.semanticElementId))}${xmlAttribute('subject', nonEmpty(element.semanticElementId))}${xmlAttribute('diagram_guid', diagramGuid)}${xmlAttribute('geometry', formatGeometry(element))}${xmlAttribute('seqno', sequence)}${xmlAttribute('style', formatStyle(element))}`,
+    `UML:DiagramElement${xmlAttribute('geometry', formatGeometry(element))}${xmlAttribute('subject', nonEmpty(element.semanticElementId))}${xmlAttribute('seqno', sequence)}${xmlAttribute('style', formatStyle(element))}`,
   )
 }
 
-function writeConnector(writer: XmlWriter, link: UMLDiagramLink, diagramGuid: string): void {
-  const relationType = typeof link.style?.type === 'string' && link.style.type.trim() !== ''
-    ? link.style.type
-    : undefined
-
+function writeRelationElement(writer: XmlWriter, link: UMLDiagramLink): void {
   writer.selfClosing(
-    `connector${xmlAttribute('xmi:id', link.id)}${xmlAttribute('xmi:idref', nonEmpty(link.semanticElementId))}${xmlAttribute('subject', nonEmpty(link.semanticElementId))}${xmlAttribute('diagram_guid', diagramGuid)}${xmlAttribute('source', nonEmpty(link.sourceElementId))}${xmlAttribute('target', nonEmpty(link.targetElementId))}${xmlAttribute('sourceElement', nonEmpty(link.sourceElementId))}${xmlAttribute('targetElement', nonEmpty(link.targetElementId))}${xmlAttribute('type', relationType)}${xmlAttribute('sourceSide', link.anchorSrc?.side)}${xmlAttribute('sourceT', link.anchorSrc?.t)}${xmlAttribute('targetSide', link.anchorTgt?.side)}${xmlAttribute('targetT', link.anchorTgt?.t)}`,
+    `UML:DiagramElement${xmlAttribute('geometry', 'SX=0;SY=0;EX=0;EY=0;Path=;')}${xmlAttribute('subject', nonEmpty(link.semanticElementId))}${xmlAttribute('style', formatRelationStyle(link))}`,
   )
+}
+
+function formatRelationStyle(link: UMLDiagramLink): string {
+  return `DUID=${link.id};Hidden=0;`
 }
 
 function formatGeometry(element: UMLDiagramElement): string {

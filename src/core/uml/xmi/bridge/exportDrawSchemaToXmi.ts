@@ -1,5 +1,6 @@
 // src/core/uml/xmi/bridge/exportDrawSchemaToXmi.ts
 
+import type { UMLModel } from '../../uml.model'
 import type { UMLProjectDocument } from '../../uml.project'
 import { validateUmlProjectDocument } from '../../uml.project.serialization'
 import { exportUmlDiagramViewsToXmi } from '../diagram'
@@ -10,13 +11,14 @@ export function exportDrawSchemaToXmi(
   document: UMLProjectDocument,
   options: XmiBridgeExportOptions = {},
 ): XmiBridgeExportResult {
-  const validation = validateUmlProjectDocument(document)
-  const exportResult = exportUmlModelToXmi(document.model, {
+  const { document: exportDocument, ownerId } = ensureVisualPackage(document)
+  const validation = validateUmlProjectDocument(exportDocument)
+  const exportResult = exportUmlModelToXmi(exportDocument.model, {
     pretty: options.pretty,
   })
-  const diagramResult = exportUmlDiagramViewsToXmi(document.diagrams, {
+  const diagramResult = exportUmlDiagramViewsToXmi(exportDocument.diagrams, {
     pretty: options.pretty,
-  })
+  }, ownerId)
   const warnings = [
     ...validationWarnings(validation),
     ...exportResult.warnings,
@@ -88,6 +90,31 @@ function diagramWarnings(document: UMLProjectDocument): string[] {
 
 function formatValidationIssue(path: string | undefined, message: string): string {
   return path ? `${path}: ${message}` : message
+}
+
+function ensureVisualPackage(document: UMLProjectDocument): { document: UMLProjectDocument; ownerId: string } {
+  const ownerId = document.model.packages[0]?.id
+  if (ownerId !== undefined) return { document, ownerId }
+
+  const syntheticPackageId = `package-${document.model.id}`
+  const model: UMLModel = {
+    ...document.model,
+    packages: [
+      {
+        id: syntheticPackageId,
+        name: document.model.name,
+        classifierIds: document.model.classifiers.map((classifier) => classifier.id),
+      },
+    ],
+  }
+
+  return {
+    document: {
+      ...document,
+      model,
+    },
+    ownerId: syntheticPackageId,
+  }
 }
 
 function appendXmiExtension(xmi: string, extension: string): string {

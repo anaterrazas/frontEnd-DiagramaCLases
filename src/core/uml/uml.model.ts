@@ -17,6 +17,7 @@ import type {
   UMLStereotype,
   UMLTypeReference,
 } from './uml.types'
+import type { UmlIdentity } from './identity'
 
 /** Versión de UML declarada por el modelo (UML 2.5.1). */
 export const UML_VERSION = '2.5.1' as const
@@ -39,6 +40,7 @@ export type UMLAppFormatVersion = typeof UML_APP_FORMAT_VERSION
  */
 export interface UMLProperty {
   id: string
+  identity?: UmlIdentity
   name: string
   type: UMLTypeReference
   visibility: UMLVisibility
@@ -71,6 +73,7 @@ export interface UMLProperty {
  */
 export interface UMLParameter {
   id: string
+  identity?: UmlIdentity
   name: string
   type: UMLTypeReference
 
@@ -88,6 +91,7 @@ export interface UMLParameter {
  */
 export interface UMLOperation {
   id: string
+  identity?: UmlIdentity
   name: string
   visibility: UMLVisibility
 
@@ -112,6 +116,7 @@ export interface UMLOperation {
 export interface UMLClass {
   kind: 'class'
   id: string
+  identity?: UmlIdentity
   name: string
   visibility: UMLVisibility
 
@@ -129,6 +134,7 @@ export interface UMLClass {
 export interface UMLInterface {
   kind: 'interface'
   id: string
+  identity?: UmlIdentity
   name: string
   visibility: UMLVisibility
 
@@ -145,6 +151,7 @@ export interface UMLInterface {
  */
 export interface UMLEnumerationLiteral {
   id: string
+  identity?: UmlIdentity
   name: string
 }
 
@@ -154,6 +161,7 @@ export interface UMLEnumerationLiteral {
 export interface UMLEnumeration {
   kind: 'enumeration'
   id: string
+  identity?: UmlIdentity
   name: string
   visibility: UMLVisibility
 
@@ -176,6 +184,7 @@ export type UMLClassifier = UMLClass | UMLInterface | UMLEnumeration
  */
 export interface UMLAssociationEnd {
   id: string
+  identity?: UmlIdentity
 
   type: UMLTypeReference
 
@@ -200,6 +209,7 @@ export interface UMLAssociationEnd {
  */
 export interface UMLAssociation {
   id: string
+  identity?: UmlIdentity
   name?: string
 
   ends: UMLAssociationEnd[]
