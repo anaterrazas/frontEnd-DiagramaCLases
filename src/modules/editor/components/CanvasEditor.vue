@@ -337,10 +337,10 @@ onMounted(() => {
 
 .canvas-wrap {
   width: 100%;
-  height: 70vh;
-  border: 1px solid #ddd;
-  background: #5e0a0a;
-  border-radius: 6px;
+  height: 62vh;
+  border: 1px solid #d0d0d0;
+  background: #fff;
+  border-radius: 9px;
 }
 
 .canvas {
@@ -353,6 +353,7 @@ onMounted(() => {
 .chatbar-wrap {
   display: flex;
   justify-content: center;
+  margin-top: 8px;
 }
 
 :deep(.chatbar) {

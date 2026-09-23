@@ -8,7 +8,7 @@
     <!-- Logo -->
     <div class="logo">
       <i class="fa-brands fa-uncharted hide-on-mobile"></i>
-      <span class="logo-text">APEX</span>
+      <span class="logo-text">DCLASS</span>
     </div>
 
     <!-- Acciones a la derecha -->
@@ -88,11 +88,11 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 60px;
+  height: 66px;
   padding: 0 1rem;
-  background-color: #fff;
-  border-bottom: 1px solid #e0e0e0;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  background: #252525;
+  border-bottom: 1px solid #686868;
+  box-shadow: none;
 }
 
 .menu-btn {
@@ -109,7 +109,7 @@ onUnmounted(() => {
   gap: 0.4rem;
   font-weight: 600;
   font-size: 1.1rem;
-  color: #083344;
+  color: #f4f4f4;
 }
 
 .actions {
@@ -136,7 +136,7 @@ onUnmounted(() => {
   height: 36px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #ccc;
+  border: 2px solid #777;
 }
 
 /* Dropdown oculto por defecto */

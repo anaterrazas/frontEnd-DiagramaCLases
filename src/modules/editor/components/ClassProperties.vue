@@ -208,9 +208,16 @@ label {
   margin: 10px 0;
 }
 
+h3 { font-size: 25px; margin: 0 0 18px; }
+h4 { color: #f5f5f5; }
+
 input, select {
   width: 100%;
   padding: 6px 8px;
+  border: 1px solid #d8dce8;
+  border-radius: 2px;
+  background: #f4f6ff;
+  color: #20242c;
 }
 
 .actions {
@@ -222,14 +229,15 @@ input, select {
 
 button {
   padding: 6px 10px;
-  border: 1px solid #ddd;
-  background: #fff;
+  border: 1px solid #aaa;
+  background: transparent;
+  color: #fff;
   border-radius: 6px;
   cursor: pointer;
 }
 
-button.secondary { background: #f6f6f6; }
-button.danger { background: #fff3f3; border-color: #f6caca; }
+button.secondary { background: #333; }
+button.danger { color: #ff8888; border-color: #b85e5e; }
 button.small { font-size: 12px; padding: 4px 8px; }
 button.icon {
   width: 28px; height: 28px; padding: 0;
@@ -260,7 +268,7 @@ button.icon {
 }
 
 .grid-nt-head {
-  font-size: 12px; color: #666; font-weight: 600;
+  font-size: 12px; color: #ddd; font-weight: 600;
 }
 
 .row-actions {

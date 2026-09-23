@@ -25,8 +25,11 @@ const isLink = computed(() => store.selected.kind === "link");
 
 <style scoped>
 .panel {
-  border-left: 1px solid #eee;
-  padding: 12px;
+  height: 100%;
+  border-left: 1px solid #686868;
+  padding: 22px;
   min-width: 320px;
+  color: #f5f5f5;
+  background: #242424;
 }
 </style>

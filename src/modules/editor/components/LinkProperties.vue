@@ -192,14 +192,20 @@ label {
   margin: 10px 0;
 }
 
+h3 { font-size: 25px; margin: 0 0 18px; }
+
 input,
 select {
   width: 100%;
   padding: 6px 8px;
+  border: 1px solid #d8dce8;
+  border-radius: 2px;
+  background: #f4f6ff;
+  color: #20242c;
 }
 
 .fieldset {
-  border: 1px solid #eee;
+  border: 1px solid #666;
   border-radius: 8px;
   padding: 8px 10px;
   margin-top: 8px;
@@ -207,7 +213,7 @@ select {
 
 legend {
   font-size: 12px;
-  color: #666;
+  color: #ddd;
   padding: 0 4px;
 }
 
@@ -220,19 +226,21 @@ legend {
 
 button {
   padding: 6px 10px;
-  border: 1px solid #ddd;
-  background: #fff;
+  border: 1px solid #aaa;
+  background: transparent;
+  color: #fff;
   border-radius: 6px;
   cursor: pointer;
 }
 
 button.secondary {
-  background: #f6f6f6;
+  background: #333;
 }
 
 button.danger {
-  background: #fef2f2;
-  border-color: #fecaca;
+  background: transparent;
+  border-color: #b85e5e;
+  color: #ff8888;
 }
 
 .hint {

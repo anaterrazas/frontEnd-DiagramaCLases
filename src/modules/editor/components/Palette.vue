@@ -38,8 +38,8 @@
 
     <button @click="dumpJson">Exportar JSON (console)</button>
 
-    <button :disabled="loading" @click="onExport">
-      {{ loading ? "Generando…" : "Exportar Spring Boot" }}
+    <button class="hidden-action" :disabled="loading" @click="onExport">
+      {{ loading ? "Generando…" : "Exportar SpringBoot" }}
     </button>
 
     <!--
@@ -58,13 +58,20 @@
       @change="onFilePicked"
     />
 
-    <button :disabled="loading" @click="onSaveProject">
-      Guardar proyecto
-    </button>
-
-    <button :disabled="loading || exportingXmi" @click="onExportXmi">
+    <button class="hidden-action" :disabled="loading || exportingXmi" @click="onExportXmi">
       {{ exportingXmi ? "Exportando XMI…" : "Exportar XMI" }}
     </button>
+
+    <button :disabled="loading" @click="onOpenEnterpriseArchitectClick">
+      Importar XMI de Enterprise Architect
+    </button>
+    <input
+      ref="enterpriseArchitectInput"
+      type="file"
+      accept=".xmi,.xml,application/xml,text/xml"
+      class="hidden"
+      @change="onEnterpriseArchitectPicked"
+    />
 
     <button :disabled="loading" @click="onOpenProjectClick">
       Abrir proyecto
@@ -77,16 +84,9 @@
       @change="onUmlProjectPicked"
     />
 
-    <button :disabled="loading" @click="onOpenEnterpriseArchitectClick">
-      Importar XMI de Enterprise Architect
+    <button :disabled="loading" @click="onSaveProject">
+      Guardar proyecto
     </button>
-    <input
-      ref="enterpriseArchitectInput"
-      type="file"
-      accept=".xmi,.xml,application/xml,text/xml"
-      class="hidden"
-      @change="onEnterpriseArchitectPicked"
-    />
 
     <p class="hint">tool: {{ tool }} — relation: {{ relationKind }}</p>
   </div>
@@ -282,6 +282,13 @@ function setRelation(k: string) {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  padding: 4px 8px 14px;
+}
+
+.palette h3 {
+  color: #f5f5f5;
+  font-size: 20px;
+  margin: 8px 0 4px;
 }
 
 .row {
@@ -291,12 +298,18 @@ function setRelation(k: string) {
 }
 
 button {
-  padding: 8px 10px;
-  border: 1px solid #ddd;
+  min-height: 40px;
+  padding: 6px 10px;
+  border: 1px solid #36c987;
   border-radius: 6px;
-  background: #288d5c;
+  background: #16a765;
+  color: white;
+  text-align: left;
+  font-size: 14px;
   cursor: pointer;
 }
+
+button:hover { background: #20bd76; }
 
 button.active {
   border-color: #2b6cb0;
@@ -304,16 +317,21 @@ button.active {
 }
 
 button.secondary {
-  background: #f6f6f6;
+  background: #333;
+  border-color: #777;
 }
 
 .hint {
   font-size: 12px;
-  color: #720e0e85;
+  color: #aaa;
   margin: 0;
 }
 
 .hidden {
+  display: none;
+}
+
+.hidden-action {
   display: none;
 }
 

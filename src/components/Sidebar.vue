@@ -71,11 +71,12 @@ const items = [
 
 <style scoped>
 .sidebar {
-  background-color: #fff;
-  width: 250px;
+  background-color: #242424;
+  color: #f5f5f5;
+  width: 282px;
   min-height: 100vh;
   padding: 1rem 0.5rem;
-  border-right: 1px solid #ddd;
+  border-right: 1px solid #686868;
   z-index: 1000;
   transition:
     transform 0.3s ease,
@@ -120,7 +121,7 @@ const items = [
   display: flex;
   align-items: center;
   padding: 0.8rem 1rem;
-  color: #333;
+  color: #f5f5f5;
   gap: 1rem;
   text-decoration: none;
   border-radius: 6px;
@@ -128,12 +129,12 @@ const items = [
 }
 
 .menu-item:hover {
-  background-color: #f0f0f0;
+  background-color: #333;
 }
 
 .active .menu-item {
-  background-color: #e4e7fb;
-  color: #4f46e5;
+  background-color: #333;
+  color: #fff;
 }
 
 /* Centrado cuando está colapsado */

@@ -53,6 +53,7 @@ const toggleSidebar = () => {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  background: #242424;
 }
 
 .layout-body {
@@ -66,7 +67,7 @@ const toggleSidebar = () => {
   overflow-y: auto;
   position: relative;
   z-index: 0;
-  background-color: #f9fafb;
+  background-color: #242424;
 }
 
 /* Si BasePage ya aplica padding, puedes eliminarlo aquí */
