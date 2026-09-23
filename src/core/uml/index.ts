@@ -60,8 +60,39 @@ export type {
   UMLAnchorSide,
 } from './uml.visual'
 
+// ---- Documento de proyecto (formato app) ----
+export type {
+  UMLProjectDocument,
+} from './uml.project'
+export type {
+  CreateUmlProjectDocumentInput,
+  UMLProjectDocumentValidationResult,
+  LoadUmlProjectDocumentResult,
+} from './uml.project.serialization'
+export {
+  createUmlProjectDocument,
+  serializeUmlProjectDocument,
+  loadUmlProjectDocumentFromJson,
+  validateUmlProjectDocument,
+} from './uml.project.serialization'
+
 // ---- Extensiones propias (NO semántica UML) ----
 export type {
   PersistenceMetadata,
   CodegenMetadata,
 } from './uml.extensions'
+
+// ---- Identidad estable (Fase 1.5) ----
+export type {
+  UMLIdentity,
+  UmlExternalId,
+  UmlExternalIdSource,
+  UmlIdentity,
+  UmlIdentityIdKind,
+} from './identity'
+export {
+  createUmlIdentity,
+  hydrateUmlIdRegistry,
+  UmlIdRegistry,
+  UmlIdentityCollisionError,
+} from './identity'

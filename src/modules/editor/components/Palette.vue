@@ -58,6 +58,36 @@
       @change="onFilePicked"
     />
 
+    <button :disabled="loading" @click="onSaveProject">
+      Guardar proyecto
+    </button>
+
+    <button :disabled="loading || exportingXmi" @click="onExportXmi">
+      {{ exportingXmi ? "Exportando XMI…" : "Exportar XMI" }}
+    </button>
+
+    <button :disabled="loading" @click="onOpenProjectClick">
+      Abrir proyecto
+    </button>
+    <input
+      ref="umlProjectInput"
+      type="file"
+      accept=".umlproject,application/json"
+      class="hidden"
+      @change="onUmlProjectPicked"
+    />
+
+    <button :disabled="loading" @click="onOpenEnterpriseArchitectClick">
+      Importar XMI de Enterprise Architect
+    </button>
+    <input
+      ref="enterpriseArchitectInput"
+      type="file"
+      accept=".xmi,.xml,application/xml,text/xml"
+      class="hidden"
+      @change="onEnterpriseArchitectPicked"
+    />
+
     <p class="hint">tool: {{ tool }} — relation: {{ relationKind }}</p>
   </div>
 </template>
@@ -67,10 +97,13 @@ import { ref, computed } from "vue";
 import { storeToRefs } from "pinia";
 import { useEditorStore, type Tool } from "@/modules/editor/store/editor.store";
 import type { RelationKind } from "@/modules/editor/services/canvas.engine";
+import { canvasSnapshotToUmlProjectDocument } from "@/modules/editor/adapters/canvasToUmlProjectDocument";
+import { exportEnterpriseArchitectXmi } from "@/core/uml/xmi";
 import { notify } from "@/utils/snackbar";
 
 const store = useEditorStore();
-const { tool, relationKind, loading } = storeToRefs(store);
+const { tool, relationKind, loading, umlModel, umlView } = storeToRefs(store);
+const exportingXmi = ref(false);
 function setTool(t: Tool) {
   store.setTool(t);
 }
@@ -101,6 +134,115 @@ const fileInput = ref<HTMLInputElement | null>(null);
 
 function onImportClick() {
   fileInput.value?.click();
+}
+
+// Persistencia local: guardar/abrir proyecto (.umlproject)
+const umlProjectInput = ref<HTMLInputElement | null>(null);
+const enterpriseArchitectInput = ref<HTMLInputElement | null>(null);
+
+async function onSaveProject() {
+  await store.exportUmlProjectFile();
+  notify("Proyecto guardado correctamente");
+}
+
+async function onExportXmi() {
+  if (exportingXmi.value) return;
+  exportingXmi.value = true;
+
+  try {
+    const snapshot = store.engine?.toJSON();
+    if (!snapshot) {
+      notify("El editor no está inicializado", "error");
+      return;
+    }
+
+    const project = canvasSnapshotToUmlProjectDocument(snapshot, {
+      documentId: umlModel.value?.id ?? "uml-project",
+      documentName: umlModel.value?.name ?? "Diagrama de clases",
+      modelId: umlModel.value?.id,
+      viewId: umlView.value?.id,
+      activeDiagramId: umlView.value?.id,
+    });
+    const result = exportEnterpriseArchitectXmi(project.document, { pretty: true });
+
+    if (result.errors.length > 0) {
+      notify(`No se exportó XMI: ${result.errors.join(" ")}`, "error");
+      return;
+    }
+
+    downloadXmi(result.xmi, project.document.name);
+    if (result.warnings.length > 0) {
+      notify(`XMI exportado con advertencias: ${result.warnings.join(" ")}`, "warning");
+    } else {
+      notify("XMI exportado correctamente");
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Error desconocido";
+    notify(`No se pudo exportar XMI: ${message}`, "error");
+  } finally {
+    exportingXmi.value = false;
+  }
+}
+
+function downloadXmi(xmi: string, projectName: string): void {
+  const blob = new Blob([xmi], { type: "application/xml" });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+
+  try {
+    anchor.href = url;
+    anchor.download = normalizeXmiFilename(projectName);
+    document.body.appendChild(anchor);
+    anchor.click();
+  } finally {
+    anchor.remove();
+    URL.revokeObjectURL(url);
+  }
+}
+
+function normalizeXmiFilename(projectName: string): string {
+  const sanitized = projectName
+    .trim()
+    .replace(/[<>:"/\\|?*\u0000-\u001F]/g, "-")
+    .replace(/\.xmi$/i, "")
+    .replace(/[. ]+$/g, "");
+
+  return `${sanitized || "uml-project"}.xmi`;
+}
+
+function onOpenProjectClick() {
+  umlProjectInput.value?.click();
+}
+
+async function onUmlProjectPicked(e: Event) {
+  const input = e.target as HTMLInputElement;
+  const file = input.files?.[0];
+  if (!file) return;
+  try {
+    await store.importUmlProjectFile(file);
+    notify("Proyecto abierto correctamente");
+  } finally {
+    if (input) input.value = "";
+  }
+}
+
+function onOpenEnterpriseArchitectClick() {
+  enterpriseArchitectInput.value?.click();
+}
+
+async function onEnterpriseArchitectPicked(e: Event) {
+  const input = e.target as HTMLInputElement;
+  const file = input.files?.[0];
+  if (!file) return;
+  try {
+    await store.importEnterpriseArchitectFile(file);
+    notify("XMI de Enterprise Architect importado correctamente");
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Error desconocido";
+    notify(`No se pudo importar el XMI de Enterprise Architect: ${message}`, "error");
+  } finally {
+    input.value = "";
+  }
 }
 
 async function onFilePicked(e: Event) {

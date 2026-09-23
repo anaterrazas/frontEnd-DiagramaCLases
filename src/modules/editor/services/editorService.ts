@@ -46,8 +46,8 @@ export async function downloadZipGenerador(payload: unknown) {
 // ─── Generador Flutter externo ───
 
 export async function downloadFlutter(payload: unknown) {
-  const base = import.meta.env.VITE_GENERATOR_FLUTTER_API_BASE_URL;
-  await downloadBlobFromPost(`${base}/generate/flutter`, payload, "codigo.zip");
+  const base = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:3000/api";
+  await downloadBlobFromPost(`${base}/codegen/flutter`, payload, "codigo.zip");
 }
 
 // ─── Generador local Spring Boot (Fase 1) ───

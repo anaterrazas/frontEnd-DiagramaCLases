@@ -6,6 +6,13 @@ import { offlineService } from '@/modules/offline/services/offline.service'
 import type { OfflineInitializeResult } from '@/modules/offline/models/offline.models'
 import { canvasToUml, makeTypeReference, parseMultiplicityText, umlToCanvas } from '../adapters'
 import type { AdapterWarning, CanvasToUmlResult } from '../adapters'
+import { canvasSnapshotToUmlProjectDocument } from '../adapters/canvasToUmlProjectDocument'
+import { umlProjectDocumentToCanvas } from '../adapters/umlProjectDocumentToCanvas'
+import { importEnterpriseArchitectXmi } from '@/core/uml/xmi'
+import {
+  downloadUmlProjectDocument,
+  readUmlProjectDocumentFile,
+} from '@/core/uml/persistence'
 import type {
   UMLAggregation,
   UMLAnchor,
@@ -882,6 +889,94 @@ export const useEditorStore = defineStore('editor', {
     /** Llamar una vez desde el componente donde usas useSalaSocket */
     setRealtimeBroadcaster(fn?: () => void) {
       this.broadcastReplace = fn ?? null
+    },
+
+    /* =========================
+       PERSISTENCIA LOCAL UMLPROJECT
+    ========================== */
+    async exportUmlProjectFile(): Promise<void> {
+      try {
+        if (!this.engine) throw new Error('Engine no inicializado')
+        this.loadingExport = true
+
+        const result = canvasSnapshotToUmlProjectDocument(this.engine.toJSON(), {
+          documentId: this.umlModel?.id ?? 'uml-project',
+          documentName: this.umlModel?.name ?? 'Diagrama de clases',
+          modelId: this.umlModel?.id,
+          viewId: this.umlView?.id,
+          activeDiagramId: this.umlView?.id,
+        })
+
+        if (!result.modelValidation.valid || !result.viewValidation.valid) {
+          throw new Error('El proyecto UML no es valido y no puede exportarse')
+        }
+
+        downloadUmlProjectDocument(result.document)
+      } finally {
+        this.loadingExport = false
+      }
+    },
+
+    async importUmlProjectFile(file: File): Promise<void> {
+      try {
+        if (!this.engine) throw new Error('Engine no inicializado')
+        this.loadingImport = true
+
+        const result = await readUmlProjectDocumentFile(file)
+        if (!result.document) {
+          throw new Error(result.error ?? 'No se pudo cargar el proyecto UML')
+        }
+
+        if (!result.validation?.valid) {
+          throw new Error('El proyecto UML cargado no es valido')
+        }
+
+        const canvasResult = umlProjectDocumentToCanvas(result.document)
+        if (!canvasResult.model || !canvasResult.model.classes || !canvasResult.model.links) {
+          throw new Error('El proyecto UML no pudo convertirse a Canvas')
+        }
+
+        this.engine.fromJSON(canvasResult.model)
+
+        const activeView = result.document.diagrams.find((diagram) => diagram.id === result.document?.activeDiagramId)
+          ?? result.document.diagrams[0]
+          ?? null
+
+        this.umlModel = result.document.model
+        this.umlView = activeView
+        this.umlWarnings = canvasResult.warnings
+
+        this.setSelected(null, null)
+        this.resetTool()
+
+        try { this.broadcastReplace?.() } catch (e) { console.warn('broadcastReplace error', e) }
+      } finally {
+        this.loadingImport = false
+      }
+    },
+
+    async importEnterpriseArchitectFile(file: File): Promise<void> {
+      try {
+        if (!this.engine) throw new Error('Engine no inicializado')
+        this.loadingImport = true
+
+        const result = importEnterpriseArchitectXmi(await file.text())
+        if (!result.document) throw new Error(result.errors.join(' ') || 'No se pudo importar el XMI de Enterprise Architect')
+
+        const canvasResult = umlProjectDocumentToCanvas(result.document)
+        this.engine.fromJSON(canvasResult.model)
+        const activeView = result.document.diagrams[0] ?? null
+
+        this.umlModel = result.document.model
+        this.umlView = activeView
+        this.umlWarnings = [...result.warnings, ...canvasResult.warnings]
+        this.setSelected(null, null)
+        this.resetTool()
+
+        try { this.broadcastReplace?.() } catch (e) { console.warn('broadcastReplace error', e) }
+      } finally {
+        this.loadingImport = false
+      }
     },
 
     /* =========================

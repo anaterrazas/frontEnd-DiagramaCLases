@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<XMI xmi.version="1.1" xmlns:UML="omg.org/UML1.3">
+  <XMI.content>
+    <UML:Model name="Modelo EA Minimo" xmi.id="EAID_MODEL_EXPERIMENT">
+      <UML:Namespace.ownedElement>
+        <UML:Package name="Diagrama de clases" xmi.id="EAID_PACKAGE_EXPERIMENT">
+          <UML:Namespace.ownedElement>
+            <UML:Class name="Cliente" xmi.id="EAID_CLASS_CLIENTE" visibility="public" namespace="EAID_PACKAGE_EXPERIMENT"/>
+          </UML:Namespace.ownedElement>
+        </UML:Package>
+      </UML:Namespace.ownedElement>
+    </UML:Model>
+    <UML:Diagram name="Diagrama de clases" xmi.id="EAID_DIAGRAM_EXPERIMENT" diagramType="ClassDiagram" owner="EAID_PACKAGE_EXPERIMENT" toolName="Enterprise Architect 2.5">
+      <UML:Diagram.element>
+        <UML:DiagramElement geometry="Left=100;Top=100;Right=260;Bottom=220;" subject="EAID_CLASS_CLIENTE" seqno="1" style="DUID=EAID_VIEW_CLIENTE;"/>
+      </UML:Diagram.element>
+    </UML:Diagram>
+  </XMI.content>
+</XMI>
